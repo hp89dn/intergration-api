@@ -1,0 +1,43 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["microsoftSqlServer"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model employee {
+  Employee_Number Int        @id @db.UnsignedInt
+  idEmployee      Int
+  Last_Name       String     @db.VarChar(45)
+  First_Name      String     @db.VarChar(45)
+  SSN             Decimal    @db.Decimal(10, 0)
+  Pay_Rate        String?    @db.VarChar(40)
+  PayRate         pay_rates? @relation(fields: [PayRates_id], references: [idPay_Rates])
+  PayRates_id     Int?
+  Vacation_Days   Int?
+  Paid_To_Date    Decimal?   @db.Decimal(2, 0)
+  Paid_Last_Year  Decimal?   @db.Decimal(2, 0)
+
+}
+
+model pay_rates {
+  idPay_Rates    Int        @id
+  Pay_Rate_Name  String     @db.VarChar(40)
+  Value          Decimal    @db.Decimal(10, 0)
+  Tax_Percentage Decimal    @db.Decimal(10, 0)
+  Pay_Type       Int
+  Pay_Amount     Decimal    @db.Decimal(10, 0)
+  PT_Level_C     Decimal    @db.Decimal(10, 0)
+  employee       employee[]
+}
+
+model users {
+  User_ID   Int     @id @default(autoincrement())
+  User_Name String  @db.VarChar(255)
+  Password  String  @db.Text
+  Email     String  @db.VarChar(255)
+  Active    Boolean @default(true)
+}

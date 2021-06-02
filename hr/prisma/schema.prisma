@@ -1,0 +1,98 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["microsoftSqlServer"]
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model MigrationHistory {
+  MigrationId    String @db.NVarChar(150)
+  ContextKey     String @db.NVarChar(300)
+  Model          Bytes
+  ProductVersion String @db.NVarChar(32)
+
+  @@id([MigrationId, ContextKey])
+  @@map("__MigrationHistory")
+}
+
+model Benefit_Plans {
+  Benefit_Plan_ID  Int        @id @default(autoincrement())
+  Plan_Name        String?    @db.NVarChar(50)
+  Deductable       Int?
+  Percentage_CoPay Int?
+  Personal         Personal[]
+}
+
+model Emergency_Contacts {
+  Employee_ID            Int      @id
+  Emergency_Contact_Name String?  @db.NVarChar(50)
+  Phone_Number           String?  @db.NVarChar(50)
+  Relationship           String?  @db.NVarChar(50)
+  Personal               Personal @relation(fields: [Employee_ID], references: [Employee_ID])
+
+  @@index([Employee_ID], name: "IX_Employee_ID")
+}
+
+model Employment {
+  Employee_ID       Int       @id
+  Employment_Status String?   @db.NVarChar(50)
+  Hire_Date         DateTime? @db.DateTime
+  Workers_Comp_Code String?   @db.NVarChar(50)
+  Termination_Date  DateTime? @db.DateTime
+  Rehire_Date       DateTime? @db.DateTime
+  Last_Review_Date  DateTime? @db.DateTime
+  Personal          Personal  @relation(fields: [Employee_ID], references: [Employee_ID])
+
+  @@index([Employee_ID], name: "IX_Employee_ID")
+}
+
+model Job_History {
+  ID                 Int       @id @default(autoincrement())
+  Employee_ID        Int
+  Department         String?   @db.NVarChar(50)
+  Division           String?   @db.NVarChar(50)
+  Start_Date         DateTime? @db.DateTime
+  End_Date           DateTime? @db.DateTime
+  Job_Title          String?   @db.NVarChar(50)
+  Supervisor         Int?
+  Job_Category       String?   @db.NVarChar(50)
+  Location           String?   @db.NVarChar(50)
+  Departmen_Code     Int?
+  Salary_Type        Int?
+  Pay_Period         String?   @db.NVarChar(50)
+  Hours_per_Week     Int?
+  Hazardous_Training Boolean?
+  Personal           Personal  @relation(fields: [Employee_ID], references: [Employee_ID])
+
+  @@index([Employee_ID], name: "IX_Employee_ID")
+}
+
+model Personal {
+  Employee_ID                           Int                 @id
+  First_Name                            String?             @db.NVarChar(50)
+  Last_Name                             String?             @db.NVarChar(50)
+  Middle_Initial                        String?             @db.NVarChar(50)
+  Address1                              String?             @db.NVarChar(50)
+  Address2                              String?             @db.NVarChar(50)
+  City                                  String?             @db.NVarChar(50)
+  State                                 String?             @db.NVarChar(50)
+  Zip                                   Int?
+  Email                                 String?             @db.NVarChar(50)
+  Phone_Number                          String?             @db.NVarChar(50)
+  Social_Security_Number                String?             @db.NVarChar(50)
+  Drivers_License                       String?             @db.NVarChar(50)
+  Marital_Status                        String?             @db.NVarChar(50)
+  Gender                                Boolean?
+  Shareholder_Status                    Boolean
+  Benefit_Plans                         Int?
+  Ethnicity                             String?             @db.NVarChar(50)
+  Benefit_Plans_Benefit_PlansToPersonal Benefit_Plans?      @relation(fields: [Benefit_Plans], references: [Benefit_Plan_ID])
+  Emergency_Contacts                    Emergency_Contacts?
+  Employment                            Employment?
+  Job_History                           Job_History[]
+
+  @@index([Benefit_Plans], name: "IX_Benefit_Plans")
+}

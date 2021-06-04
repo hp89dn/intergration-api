@@ -120,9 +120,9 @@ app.get("/api/payroll/get/users", async (req, res) => {
   }
 });
 
-app.get("/api/payroll/get/user/email=:email", async (req, res) => {
+app.get("/api/payroll/get/user", async (req, res) => {
   try {
-    const { email } = req.params;
+    const { email } = req.body;
     const user = await prisma.users.findFirst({
       select: {
         User_ID: true,
@@ -137,6 +137,14 @@ app.get("/api/payroll/get/user/email=:email", async (req, res) => {
   } catch (error) {
     res.status(401).json(error.message);
   }
+});
+
+app.post("/api/payroll/save/salary" , async(req,res) => {
+    try {
+
+    } catch {
+
+    }
 });
 
 app.listen(PORT, () => {

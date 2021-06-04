@@ -89,6 +89,56 @@ app.post("/api/payroll/create/employee", async (req, res) => {
     }
 });
 
+app.post("/api/payroll/create/user", async (req, res) => {
+  try {
+    const { User_Name, Email, Password } = req.body;
+    await prisma.users.create({
+      data: {
+        User_Name: User_Name,
+        Email: Email,
+        Password: Password
+      }
+    });
+    res.status(200).json("Create new user success");
+  } catch (error) {
+    res.status(401).json(error.message);
+  }
+});
+
+app.get("/api/payroll/get/users", async (req, res) => {
+  try {
+    const users = await prisma.users.findMany({
+      select: {
+        User_ID: true,
+        Email: true,
+        User_Name: true
+      }
+    });
+    res.status(200).json([...users]);
+  } catch (error) {
+    res.status(401).json(error.message);
+  }
+});
+
+app.get("/api/payroll/get/user/email=:email", async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await prisma.users.findFirst({
+      select: {
+        User_ID: true,
+        Email: true,
+        User_Name: true
+      },
+      where: {
+        Email: email
+      }
+    });
+    res.status(200).json({ ...user });
+  } catch (error) {
+    res.status(401).json(error.message);
+  }
+});
+
 app.listen(PORT, () => {
     console.log(`⚡️[server]: Server is running at https://localhost:${PORT}`);
 });

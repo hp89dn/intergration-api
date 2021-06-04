@@ -4,7 +4,8 @@ const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
 // rest of the code remains same
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 5000;
+
 app.get("/api/hr/get/employee", async (req, res) => {
   try {
     const personals = await prisma.personal.findMany();

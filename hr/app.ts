@@ -63,5 +63,5 @@ app.post("/api/hr/create/employee", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`⚡️[server]: Server is running at https://localhost:${PORT}`);
+  console.log(`⚡️[HR]: Server is running at https://localhost:${PORT}`);
 });

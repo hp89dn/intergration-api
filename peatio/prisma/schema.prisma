@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model statistic {
+  id                 Int     @id @default(autoincrement())
+  Employee_Number    Int     @unique
+  idEmployee         Int     @unique
+  Last_Name          String  @db.VarChar(45)
+  First_Name         String  @db.VarChar(45)
+  SSN                Decimal @db.Decimal(10, 0)
+  Gender             Boolean @default(dbgenerated("b'0'")) @db.Bit(1)
+  Shareholder_Status Boolean @default(dbgenerated("b'0'")) @db.Bit(1)
+  Benefit_Plans      Int     @default(0)
+  Ethnicity          String  @db.VarChar(50)
+  Vacation_Days      Int?    @default(0)
+  Salary             BigInt? @default(0)
+}

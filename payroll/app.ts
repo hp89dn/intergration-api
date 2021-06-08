@@ -2,13 +2,22 @@ import express from "express";
 import { PrismaClient } from "@prisma/client";
 import NP from "number-precision";
 import axios from "axios";
+import cors from "cors";
 
 const prisma = new PrismaClient();
-
-// rest of the code remains same
 const app = express();
+//To allow cross-origin requests
+app.use(cors());
 app.use(express.json());
-const PORT = process.env.PORT || 6000;
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
+const PORT = process.env.PORT || 7000;
 
 app.get("/api/payroll/employee", async (req, res) => {
   try {
@@ -33,12 +42,21 @@ app.get("/api/payroll/employee", async (req, res) => {
         idEmployee: employee.idEmployee,
         Last_Name: employee.Last_Name,
         First_Name: employee.First_Name,
+        PayRates_id: employee.PayRates_id,
+        Tax_Percentage: tax_percent,
+        Pay_Amount: pay_amount,
         SSN: employee.SSN,
+        Pay_Rate: employee.Pay_Rate,
+        Paid_To_Date: employee.Paid_To_Date,
+        Paid_Last_Year: employee.Paid_Last_Year,
         Vacation_Days: employee.Vacation_Days,
         Salary: Salary,
       };
     });
-    res.status(200).json([...employeesInfo]);
+
+    res
+      .status(200)
+      .json([...employeesInfo].sort((a, b) => a.Salary - b.Salary));
   } catch (err) {
     res.status(401).json({
       msg: "[Fail] Fetch employees fail",
@@ -49,19 +67,31 @@ app.get("/api/payroll/employee", async (req, res) => {
 
 app.put("/api/payroll/employee", async (req, res) => {
   try {
-    const { Employee_Number, Last_Name, First_Name, SSN } = req.body;
+    const {
+      Employee_ID,
+      Pay_Rate,
+      Paid_To_Date,
+      Paid_Last_Year,
+      Vacation_Days,
+      PayRates_id,
+    } = req.body;
+
     await prisma.employee.update({
       where: {
-        Employee_Number: Employee_Number,
+        Employee_Number: Number(Employee_ID),
       },
       data: {
-        Last_Name: Last_Name,
-        First_Name: First_Name,
-        SSN: SSN,
+        Pay_Rate: String(Pay_Rate),
+        Paid_To_Date: Number(Paid_To_Date),
+        Paid_Last_Year: Number(Paid_Last_Year),
+        Vacation_Days: Number(Vacation_Days),
+        PayRates_id: Number(PayRates_id),
       },
     });
     res.status(200).json("[Success] Update employee information successfully");
   } catch (error) {
+    console.log(error.message);
+
     res.status(401).json({
       msg: "[Fail] Update employee information fail",
       error: error.message,
@@ -73,6 +103,7 @@ app.post("/api/payroll/create/employee", async (req, res) => {
   try {
     const { Employee_Number, Last_Name, First_Name, SSN, idEmployee } =
       req.body;
+
     await prisma.employee.create({
       data: {
         Employee_Number: Employee_Number,
@@ -84,7 +115,27 @@ app.post("/api/payroll/create/employee", async (req, res) => {
     });
     res.status(200).json("[Success] Add new employee success");
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+    res.status(401).json(error.message);
+  }
+});
+
+app.put("/api/payroll/update/employee", async (req, res) => {
+  try {
+    const { Employee_ID, Last_Name, First_Name } = req.body;
+
+    await prisma.employee.update({
+      where: {
+        Employee_Number: Employee_ID,
+      },
+      data: {
+        First_Name: First_Name,
+        Last_Name: Last_Name,
+      },
+    });
+    res.status(200).json("[Success] Add new employee success");
+  } catch (error) {
+    console.log(error.message);
     res.status(401).json(error.message);
   }
 });
@@ -118,6 +169,11 @@ app.get("/api/payroll/get/users", async (req, res) => {
   } catch (error) {
     res.status(401).json(error.message);
   }
+});
+
+app.get("/api/payroll/get/payrates", async (req, res) => {
+  try {
+  } catch (error) {}
 });
 
 app.get("/api/payroll/get/user", async (req, res) => {
